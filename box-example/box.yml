@@ -37,9 +37,11 @@
      - {
         role: "sa_jupyterlab",
         option_install_python2: False,
-        option_install_python3: True,
-        option_install_anaconda: True,
-        option_install_git: True
+        option_install_python3: False,
+        option_install_anaconda: False,
+        option_install_git: False,
+        option_upgrade_pip_in_jupyter_venv: true,
+        python_major_version: 3
        }
 
 

@@ -73,6 +73,18 @@
        executable: "{{ jupyterlab_pip | default('/opt/jupyterhub/bin/pip3') }}"
        extra_args: '--upgrade'
        name:
+        - pip
+    become: yes
+    when: option_upgrade_pip_in_jupyter_venv
+    tags:
+      - jupyterlab
+
+
+  - name: JupyterLab | install components
+    pip:
+       executable: "{{ jupyterlab_pip | default('/opt/jupyterhub/bin/pip3') }}"
+       extra_args: '--upgrade'
+       name:
         - wheel
         - jupyterhub
         - jupyterlab
