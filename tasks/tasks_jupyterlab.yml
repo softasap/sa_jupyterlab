@@ -120,7 +120,7 @@
       regexp: "{{ item.regexp }}"
       line: "{{ item.line }}"
       insertafter: "{{ item.insertafter | default('EOF') }}"
-    with_items: "{{ JupyterLab_properties | default([]) }}"
+    with_items: "{{ jupyterhub_properties | default([]) }}"
     when: docker_test is not defined
     become: yes
     tags:
