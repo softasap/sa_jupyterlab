@@ -6,9 +6,12 @@ name: CI
     branches:
       - master
       - develop
-      - 'feat*'
-      - 'hotfix*'
       - '!release/*'
+      - 'feature*'
+      - 'hotfix*'
+      - 'bugfix*'
+      - 'local*'
+
   schedule:
     - cron: "10 5 * * 2"
 
