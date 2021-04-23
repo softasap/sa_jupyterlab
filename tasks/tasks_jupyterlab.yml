@@ -1,0 +1,154 @@
+---
+
+  - name: JupyterLab | npm configurable-http-proxy
+    npm:
+      name: configurable-http-proxy
+      global: yes
+      state: present
+    become: yes
+    tags:
+      - jupyterlab
+
+  - name: JupyterLab | create jupyter group
+    group:
+      name: jupyter
+      state: present
+    become: yes
+    tags:
+      - jupyterlab
+
+  - name: JupyterLab | create jupyter user
+    user:
+      name: jupyter
+      state: present
+      groups: jupyter,shadow
+    become: yes
+    tags:
+      - jupyterlab
+
+  - name: JupyterLab | create jupyter config folder
+    file:
+      path: /etc/jupyterlab
+      state: directory
+      mode: 0755
+      owner: jupyter
+      group: jupyter
+    become: yes
+    tags:
+      - jupyterlab
+
+  - name: JupyterLab | create jupyter sqllitedb folder
+    file:
+      path: /etc/jupyterlab/db
+      state: directory
+      owner: jupyter
+      group: jupyter
+      mode: "u=rwx,g=rwx,o="
+    become: yes
+    tags:
+      - jupyterlab
+
+  - name: JupyterLab | allow sudoer for jupyter command
+    template:
+      src: "{{ role_dir }}/templates/jupyter_sudoers_d.j2"
+      dest: /etc/sudoers.d/jupyter
+      mode: 0440
+      owner: root
+      group: root
+    become: yes
+    tags:
+      - jupyterlab
+
+  - name: JupyterLab | install jupyter installation venv directory
+    shell: "python{{ python_major_version }} -m venv /opt/jupyterhub/"
+    args:
+      creates: /opt/jupyterhub/bin
+    become: yes
+    tags:
+      - jupyterlab
+      - skip_ansible_lint
+
+  - name: JupyterLab | install components
+    pip:
+       executable: "{{ jupyterlab_pip | default('/opt/jupyterhub/bin/pip3') }}"
+       extra_args: '--upgrade'
+       name:
+        - pip
+    become: yes
+    when: option_upgrade_pip_in_jupyter_venv
+    tags:
+      - jupyterlab
+
+
+  - name: JupyterLab | install components
+    pip:
+       executable: "{{ jupyterlab_pip | default('/opt/jupyterhub/bin/pip3') }}"
+       extra_args: '--upgrade'
+       name:
+        - wheel
+        - jupyterhub
+        - jupyterlab
+        - sudospawner
+    become: yes
+    tags:
+      - jupyterlab
+
+  - name: JupyterLab | Check initialized
+    shell: test -e  /etc/jupyterlab/jupyterhub_config.py
+    become: yes
+    changed_when: False
+    ignore_errors: true
+    register: config_present
+    tags:
+      - jupyterlab
+      - skip_ansible_lint
+
+  - name: JupyterLab | Configure
+    shell: "{{ jupyterhub_python_base_dir }}/bin/jupyterhub --generate-config"
+    args:
+       chdir: /etc/jupyterlab/
+       creates: /etc/jupyterlab/jupyterhub_config.py
+    when: config_present is failed
+    become: yes
+    tags:
+      - jupyterlab
+      - skip_ansible_lint
+
+  - name: JupyterLab | Patch basic settings /etc/jupyterlab/jupyterhub_config.py
+    lineinfile:
+      dest: /etc/jupyterlab/jupyterhub_config.py
+      regexp: "{{ item.regexp }}"
+      line: "{{ item.line }}"
+      insertafter: "{{ item.insertafter | default('EOF') }}"
+    with_items: "{{ jupyterhub_properties | default([]) }}"
+    when: docker_test is not defined
+    become: yes
+    tags:
+      - jupyterlab
+
+  - name: JupyterLab | Template startup (systemd)
+    template:
+       src: "{{ role_path }}/templates/jupyterlab.systemd.j2"
+       dest: "/etc/systemd/system/jupyterlab.service"
+       owner: root
+       group: root
+       mode: "u=rwx,g=r,o=r"
+    when: ansible_service_mgr == "systemd"
+    become: yes
+    tags:
+      - jupyterlab
+
+  - name: JupyterLab | reload systemd
+    command: systemctl daemon-reload
+    when: ansible_service_mgr == "systemd"
+    become: yes
+    tags:
+      - jupyterlab
+      - skip_ansible_lint
+
+  - name: JupyterLab | Start and Enable Service
+    service: name="jupyterlab" enabled="yes" state="started"
+    when: ansible_service_mgr == "systemd"
+    become: yes
+    tags:
+      - jupyterlab
