@@ -48,7 +48,7 @@ jobs:
         distro:
 #          - name: fedora33
 #          - name: centos7
-          - name: ubuntu1604
+#          - name: ubuntu1604
           - name: ubuntu1804
           - name: ubuntu2004
 
