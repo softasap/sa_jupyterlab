@@ -1,7 +1,7 @@
 ---
 
   - name: JupyterLab | npm configurable-http-proxy
-    npm:
+    community.general.npm:
       name: configurable-http-proxy
       global: yes
       state: present
@@ -10,7 +10,7 @@
       - jupyterlab
 
   - name: JupyterLab | create jupyter group
-    group:
+    ansible.builtin.group:
       name: jupyter
       state: present
     become: yes
@@ -18,7 +18,7 @@
       - jupyterlab
 
   - name: JupyterLab | create jupyter user
-    user:
+    ansible.builtin.user:
       name: jupyter
       state: present
       groups: jupyter,shadow
@@ -27,7 +27,7 @@
       - jupyterlab
 
   - name: JupyterLab | create jupyter config folder
-    file:
+    ansible.builtin.file:
       path: /etc/jupyterlab
       state: directory
       mode: 0755
@@ -38,7 +38,7 @@
       - jupyterlab
 
   - name: JupyterLab | create jupyter sqllitedb folder
-    file:
+    ansible.builtin.file:
       path: /etc/jupyterlab/db
       state: directory
       owner: jupyter
@@ -49,7 +49,7 @@
       - jupyterlab
 
   - name: JupyterLab | allow sudoer for jupyter command
-    template:
+    ansible.builtin.template:
       src: "{{ role_dir }}/templates/jupyter_sudoers_d.j2"
       dest: /etc/sudoers.d/jupyter
       mode: 0440
@@ -69,7 +69,7 @@
       - skip_ansible_lint
 
   - name: JupyterLab | install components
-    pip:
+    ansible.builtin.pip:
        executable: "{{ jupyterlab_pip | default('/opt/jupyterhub/bin/pip3') }}"
        extra_args: '--upgrade'
        name:
@@ -81,7 +81,7 @@
 
 
   - name: JupyterLab | install components
-    pip:
+    ansible.builtin.pip:
        executable: "{{ jupyterlab_pip | default('/opt/jupyterhub/bin/pip3') }}"
        extra_args: '--upgrade'
        name:
@@ -115,7 +115,7 @@
       - skip_ansible_lint
 
   - name: JupyterLab | Patch basic settings /etc/jupyterlab/jupyterhub_config.py
-    lineinfile:
+    ansible.builtin.lineinfile:
       dest: /etc/jupyterlab/jupyterhub_config.py
       regexp: "{{ item.regexp }}"
       line: "{{ item.line }}"
@@ -127,7 +127,7 @@
       - jupyterlab
 
   - name: JupyterLab | Template startup (systemd)
-    template:
+    ansible.builtin.template:
        src: "{{ role_path }}/templates/jupyterlab.systemd.j2"
        dest: "/etc/systemd/system/jupyterlab.service"
        owner: root
