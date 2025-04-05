@@ -3,18 +3,18 @@ name = "molecule-env"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "Y"}
+    {name = "Vyacheslav Voronenko"}
 ]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = [
-    "ansible (>=11.4.0,<12.0.0)",
-    "ansible-lint (>=25.2.1,<26.0.0)",
-    "flake8 (>=7.2.0,<8.0.0)",
-    "molecule (>=25.4.0,<26.0.0)",
-    "pytest-molecule (>=2.0.0,<3.0.0)",
     "python-vagrant (>=1.0.0,<2.0.0)",
-    "molecule-plugins[docker,ec2,vagrant] (>=23.7.0,<24.0.0)"
+    "testinfra (>=6.0.0,<7.0.0)",
+    "libvirt-python (>=11.2.0,<12.0.0)",
+    "molecule (==25.1.0)",
+    "molecule-vagrant (>=2.0.0,<3.0.0)",
+    "molecule-plugins (==23.7.0)",
+    "ansible (>11,<12)"
 ]
 
 

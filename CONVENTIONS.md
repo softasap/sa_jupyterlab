@@ -13,6 +13,9 @@ Role name should be in the format of `sa_<service_name>`
 ## Tasks
 
 We should use fully qualified names for modules, as per ansible documentation.
+Some validated names include:
+ansible.builtin.apt_key
+ansible.builtin.apt_repository
 When calling a module, always specify name in a format  GOAL | What step does.
 
 Example:
