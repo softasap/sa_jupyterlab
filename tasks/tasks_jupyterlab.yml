@@ -60,7 +60,7 @@
       - jupyterlab
 
   - name: JupyterLab | install jupyter installation venv directory
-    shell: "python{{ python_major_version }} -m venv /opt/jupyterhub/"
+    ansible.builtin.shell: "python{{ python_major_version }} -m venv /opt/jupyterhub/"
     args:
       creates: /opt/jupyterhub/bin
     become: yes
@@ -94,7 +94,7 @@
       - jupyterlab
 
   - name: JupyterLab | Check initialized
-    shell: test -e  /etc/jupyterlab/jupyterhub_config.py
+    ansible.builtin.shell: test -e  /etc/jupyterlab/jupyterhub_config.py
     become: yes
     changed_when: False
     ignore_errors: true
@@ -104,7 +104,7 @@
       - skip_ansible_lint
 
   - name: JupyterLab | Configure
-    shell: "{{ jupyterhub_python_base_dir }}/bin/jupyterhub --generate-config"
+    ansible.builtin.shell: "{{ jupyterhub_python_base_dir }}/bin/jupyterhub --generate-config"
     args:
        chdir: /etc/jupyterlab/
        creates: /etc/jupyterlab/jupyterhub_config.py
@@ -139,7 +139,7 @@
       - jupyterlab
 
   - name: JupyterLab | reload systemd
-    command: systemctl daemon-reload
+    ansible.builtin.command: systemctl daemon-reload
     when: ansible_service_mgr == "systemd"
     become: yes
     tags:
@@ -147,7 +147,7 @@
       - skip_ansible_lint
 
   - name: JupyterLab | Start and Enable Service
-    service: name="jupyterlab" enabled="yes" state="started"
+    ansible.builtin.service: name="jupyterlab" enabled="yes" state="started"
     when: ansible_service_mgr == "systemd"
     become: yes
     tags:
