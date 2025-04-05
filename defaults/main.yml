@@ -18,10 +18,11 @@ jupyterhub_properties:
   - {regexp: "^c.Authenticator.admin_users*", line: "c.Authenticator.admin_users = {'jupyter'}"}
   - {regexp: "^c.LocalAuthenticator.create_system_users*", line: "c.LocalAuthenticator.create_system_users = True"}
   - {regexp: "^c.JupyterHub.confirm_no_ssl*", line: "c.JupyterHub.confirm_no_ssl = True"}
+  - {regexp: "^c.JupyterHub.spawner_class*", line: "c.JupyterHub.spawner_class = 'systemdspawner.SystemdSpawner'"}
   - {regexp: "^c.JupyterHub.cookie_secret*", line: "c.JupyterHub.cookie_secret = bytes.fromhex('{{jupyterhub_cookie_secret}}')"}
   - {regexp: "^c.JupyterHub.db_url*", line: "c.JupyterHub.db_url = '/etc/jupyterlab/db/jupyterhub.sqlite'"}
-  - {regexp: "^c.SudoSpawner.sudospawner_path*", line: "c.SudoSpawner.sudospawner_path=\"{{jupyterhub_python_base_dir}}/bin/sudospawner\""}
-  - {regexp: "^c.Spawner.default_url*", line: "c.Spawner.default_url = '/lab'"}
+  #- {regexp: "^c.SudoSpawner.sudospawner_path*", line: "c.SudoSpawner.sudospawner_path=\"{{jupyterhub_python_base_dir}}/bin/sudospawner\""}
+  #- {regexp: "^c.Spawner.default_url*", line: "c.Spawner.default_url = '/lab'"}
 
   # - {regexp: "^c.JupyterHub.hub_ip*", line: "c.JupyterHub.hub_ip = '{{ jupyterhub_ip }}'"}
   # - {regexp: "^c.JupyterHub.ip*", line: "c.JupyterHub.ip = '{{ jupyterhub_ip }}'"}
