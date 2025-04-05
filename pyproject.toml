@@ -1,0 +1,23 @@
+[project]
+name = "molecule-env"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Y"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "ansible (>=11.4.0,<12.0.0)",
+    "ansible-lint (>=25.2.1,<26.0.0)",
+    "flake8 (>=7.2.0,<8.0.0)",
+    "molecule (>=25.4.0,<26.0.0)",
+    "pytest-molecule (>=2.0.0,<3.0.0)",
+    "python-vagrant (>=1.0.0,<2.0.0)",
+    "molecule-plugins[docker,ec2,vagrant] (>=23.7.0,<24.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

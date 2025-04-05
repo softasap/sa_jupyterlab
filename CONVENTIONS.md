@@ -1,5 +1,11 @@
 When we are developing ansible roles we should follow the conventions below.
 
+## General
+Do not change role logic, and remove any existing code without confirmation or PR review,
+other code might depend on role logic, instead, confirm.
+
+In yaml files, use 2 spaces for indentation.
+
 ## Roles
 ### Role name
 Role name should be in the format of `sa_<service_name>`
