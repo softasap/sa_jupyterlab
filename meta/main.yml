@@ -173,7 +173,8 @@ galaxy_info:
   #- packaging
   #- system
   #- web
-dependencies: []
+dependencies:
+  - name: community.general
   # List your role dependencies here, one per line.
   # Be sure to remove the '[]' above if you add dependencies
   # to this list.
