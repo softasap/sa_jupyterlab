@@ -1,7 +1,7 @@
 # sa-node 1.9.0
 ---
   - name: NodeJS | Check if is present
-    command: test -x /usr/bin/node
+    ansible.builtin.command: test -x /usr/bin/node
     when: ansible_system == "Linux"
     ignore_errors: yes
     register: node_present
@@ -11,7 +11,7 @@
         -setup
 
   - name: NodeJS | package dependencies
-    apt:
+    ansible.builtin.apt:
       name:
          - git
          - curl
@@ -25,7 +25,7 @@
       - setup
 
   - name: Detect node family
-    set_fact:
+    ansible.builtin.set_fact:
         nodejs_family_major: "{{  nodejs_version.split('.')[0] | lower }}"
         nodejs_family: "{{  nodejs_version.split('.')[0] | lower }}.x"
         nodejs_exact_version: false
@@ -42,7 +42,7 @@
         nodejs_version not in ["0.10", "0.12", "4.x", "5.x", "6.x", "7.x", "8.x", "9.x", "10.x", "11.x", "12.x"]
 
   - name: NodeJS | Check nodejs_version variable
-    assert:
+    ansible.builtin.assert:
       that: nodejs_family_major in [ "0", "4", "5", "6", "7", "8", "9", "10", "11", "12" ]
     when: node_present is failed
     tags:
@@ -51,7 +51,7 @@
 
 # [VS] 2016-09-15 Chore caused by https://github.com/nodesource/distributions/issues/354
   - name: NodeJS | Import the NodeSource GPG key into apt
-    apt_key:
+    community.general.apt_key:
       url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
       state: present
       validate_certs: no
@@ -66,7 +66,7 @@
        -setup
 
   - name: NodeJS | Add NodeSource deb repository
-    apt_repository: repo='deb https://deb.nodesource.com/node_{{ nodejs_family }} {{ ansible_distribution_release }} main' state=present
+    community.general.apt_repository: repo='deb https://deb.nodesource.com/node_{{ nodejs_family }} {{ ansible_distribution_release }} main' state=present
     become: yes
     when: node_present is failed
     tags:
@@ -75,7 +75,7 @@
 
 
   - name: NodeJS | Add NodeSource deb-src repository
-    apt_repository: repo='deb-src https://deb.nodesource.com/node_{{ nodejs_family }} {{ ansible_distribution_release }} main' state=present
+    community.general.apt_repository: repo='deb-src https://deb.nodesource.com/node_{{ nodejs_family }} {{ ansible_distribution_release }} main' state=present
     become: yes
     when: node_present is failed
     tags:
@@ -84,7 +84,7 @@
 
 
   - name: NodeJS | Add NodeSource repository preferences
-    template:
+    ansible.builtin.template:
       src: "{{ role_dir }}/templates/nodejs/deb_nodesource_com_node.pref.j2"
       dest: /etc/apt/preferences.d/deb_nodesource_com_node.pref
       owner: root
@@ -97,7 +97,7 @@
        -setup
 
   - name: NodeJS | Install versioned Node.js 0.10 0.12 family
-    apt: pkg="nodejs={{ nodejs_version }}.*" state=present update_cache=yes
+    ansible.builtin.apt: pkg="nodejs={{ nodejs_version }}.*" state=present update_cache=yes
     become: yes
     when: nodejs_version in [ "0.10", "0.12" ]  and node_present is failed
     tags:
@@ -156,7 +156,7 @@
        -setup
 
   - name: NodeJS | Self update npm to most recent one
-    shell: npm install -g npm
+    ansible.builtin.shell: npm install -g npm
     when: node_present is failed and option_install_default_packages | default(False)
     become: yes
     tags:
@@ -165,7 +165,7 @@
        -skip_ansible_lint
 
   - name: NodeJS | Install gulp, bower, grunt, grunt-cli tools tool
-    shell: "npm install -g {{ item }}"
+    ansible.builtin.shell: "npm install -g {{ item }}"
     when: node_present is failed and option_install_default_packages | default(False)
     with_items:
       - gulp
