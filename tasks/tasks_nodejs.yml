@@ -66,7 +66,9 @@
        -setup
 
   - name: NodeJS | Add NodeSource deb repository
-    community.general.apt_repository: repo='deb https://deb.nodesource.com/node_{{ nodejs_family }} {{ ansible_distribution_release }} main' state=present
+    community.general.apt_repository:
+      repo: 'deb https://deb.nodesource.com/node_{{ nodejs_family }} {{ ansible_distribution_release }} main'
+      state: present
     become: yes
     when: node_present is failed
     tags:
@@ -75,7 +77,9 @@
 
 
   - name: NodeJS | Add NodeSource deb-src repository
-    community.general.apt_repository: repo='deb-src https://deb.nodesource.com/node_{{ nodejs_family }} {{ ansible_distribution_release }} main' state=present
+    community.general.apt_repository:
+      repo: 'deb-src https://deb.nodesource.com/node_{{ nodejs_family }} {{ ansible_distribution_release }} main'
+      state: present
     become: yes
     when: node_present is failed
     tags:
@@ -97,7 +101,10 @@
        -setup
 
   - name: NodeJS | Install versioned Node.js 0.10 0.12 family
-    ansible.builtin.apt: pkg="nodejs={{ nodejs_version }}.*" state=present update_cache=yes
+    ansible.builtin.apt:
+      pkg: "nodejs={{ nodejs_version }}.*"
+      state: present
+      update_cache: yes
     become: yes
     when: nodejs_version in [ "0.10", "0.12" ]  and node_present is failed
     tags:
@@ -156,7 +163,8 @@
        -setup
 
   - name: NodeJS | Self update npm to most recent one
-    ansible.builtin.shell: npm install -g npm
+    ansible.builtin.shell:
+      cmd: npm install -g npm
     when: node_present is failed and option_install_default_packages | default(False)
     become: yes
     tags:
@@ -165,7 +173,8 @@
        -skip_ansible_lint
 
   - name: NodeJS | Install gulp, bower, grunt, grunt-cli tools tool
-    ansible.builtin.shell: "npm install -g {{ item }}"
+    ansible.builtin.shell:
+      cmd: "npm install -g {{ item }}"
     when: node_present is failed and option_install_default_packages | default(False)
     with_items:
       - gulp
