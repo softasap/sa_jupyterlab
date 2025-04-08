@@ -1,6 +1,6 @@
 --- # 1.6.0
   - name: Python3 | Check is installed
-    command: "python3 --version"
+    ansible.builtin.command: "python3 --version"
     register: py3_installed
     ignore_errors: true
     failed_when: "'Python {{ python_version }}' not in py3_installed.stdout"
@@ -9,13 +9,13 @@
       - python3
 
   - name: Python3 | install dependencies
-    apt:
+    ansible.builtin.apt:
       pkg:
         - make
         - build-essential
         - libffi-dev
         - zlib1g-dev
-        - libreadline-gplv2-dev
+        #- libreadline-gplv2-dev
         - libncursesw5-dev
         - libssl-dev
         - libsqlite3-dev
@@ -33,7 +33,7 @@
       - python3
 
   - name: Python3 | install dependencies
-    apt:
+    ansible.builtin.apt:
       pkg:
         - "gcc"
         - "glibc"
@@ -51,7 +51,7 @@
       - python3
 
   - name: Python3 | Download distribution
-    get_url:
+    ansible.builtin.get_url:
       url: "https://www.python.org/ftp/python/{{ python_version }}/Python-{{ python_version }}.tgz"
       dest: /tmp/Python-{{ python_version }}.tgz
     when: py3_installed  is failed
@@ -59,7 +59,7 @@
       - python3
 
   - name: Python3 | Unpack distribution
-    unarchive:
+    ansible.builtin.unarchive:
       src: /tmp/Python-{{ python_version }}.tgz
       dest: /tmp
       remote_src: yes
@@ -68,7 +68,7 @@
       - python3
 
   - name: Python3 | Configure for install
-    command: "./configure"
+    ansible.builtin.command: "./configure"
     args:
       chdir: "/tmp/Python-{{ python_version }}"
     when: py3_installed  is failed
@@ -76,7 +76,7 @@
       - python3
 
   - name: Python3 | make
-    command: "make"
+    ansible.builtin.command: "make"
     args:
       chdir: "/tmp/Python-{{ python_version }}"
     when: py3_installed  is failed
@@ -85,7 +85,7 @@
       - python3
 
   - name: Python3 | make install
-    command: "make install"
+    ansible.builtin.command: "make install"
     args:
       chdir: "/tmp/Python-{{ python_version }}"
     when: py3_installed  is failed

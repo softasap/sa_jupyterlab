@@ -1,7 +1,7 @@
 ---
 
   - name: JupyterLab | npm configurable-http-proxy
-    npm:
+    community.general.npm:
       name: configurable-http-proxy
       global: yes
       state: present
@@ -10,7 +10,7 @@
       - jupyterlab
 
   - name: JupyterLab | create jupyter group
-    group:
+    ansible.builtin.group:
       name: jupyter
       state: present
     become: yes
@@ -18,7 +18,7 @@
       - jupyterlab
 
   - name: JupyterLab | create jupyter user
-    user:
+    ansible.builtin.user:
       name: jupyter
       state: present
       groups: jupyter,shadow
@@ -26,8 +26,17 @@
     tags:
       - jupyterlab
 
+  # do not forget to set a password for such user in order to impersonate on spawner
+  - name: JupyterLab | Add users to jupyter group
+    ansible.builtin.user:
+      name: "{{ item }}"
+      groups: jupyter
+      append: yes
+    become: yes
+    loop: "{{ jupyterhub_users }}"
+
   - name: JupyterLab | create jupyter config folder
-    file:
+    ansible.builtin.file:
       path: /etc/jupyterlab
       state: directory
       mode: 0755
@@ -38,7 +47,7 @@
       - jupyterlab
 
   - name: JupyterLab | create jupyter sqllitedb folder
-    file:
+    ansible.builtin.file:
       path: /etc/jupyterlab/db
       state: directory
       owner: jupyter
@@ -49,7 +58,7 @@
       - jupyterlab
 
   - name: JupyterLab | allow sudoer for jupyter command
-    template:
+    ansible.builtin.template:
       src: "{{ role_dir }}/templates/jupyter_sudoers_d.j2"
       dest: /etc/sudoers.d/jupyter
       mode: 0440
@@ -60,7 +69,7 @@
       - jupyterlab
 
   - name: JupyterLab | install jupyter installation venv directory
-    shell: "python{{ python_major_version }} -m venv /opt/jupyterhub/"
+    ansible.builtin.shell: "python{{ python_major_version }} -m venv /opt/jupyterhub/"
     args:
       creates: /opt/jupyterhub/bin
     become: yes
@@ -69,7 +78,7 @@
       - skip_ansible_lint
 
   - name: JupyterLab | install components
-    pip:
+    ansible.builtin.pip:
        executable: "{{ jupyterlab_pip | default('/opt/jupyterhub/bin/pip3') }}"
        extra_args: '--upgrade'
        name:
@@ -79,9 +88,18 @@
     tags:
       - jupyterlab
 
+  - name: JupyterLab | Set capabilities for Node.js binary (port 80)
+    community.general.capabilities:
+      path: /usr/bin/node
+      capability: cap_net_bind_service=+ep
+      state: present
+    become: yes
+    ignore_errors: yes
+    tags:
+      - jupyterlab
 
   - name: JupyterLab | install components
-    pip:
+    ansible.builtin.pip:
        executable: "{{ jupyterlab_pip | default('/opt/jupyterhub/bin/pip3') }}"
        extra_args: '--upgrade'
        name:
@@ -89,12 +107,13 @@
         - jupyterhub
         - jupyterlab
         - sudospawner
+        - jupyterhub-systemdspawner
     become: yes
     tags:
       - jupyterlab
 
   - name: JupyterLab | Check initialized
-    shell: test -e  /etc/jupyterlab/jupyterhub_config.py
+    ansible.builtin.shell: test -e  /etc/jupyterlab/jupyterhub_config.py
     become: yes
     changed_when: False
     ignore_errors: true
@@ -104,7 +123,7 @@
       - skip_ansible_lint
 
   - name: JupyterLab | Configure
-    shell: "{{ jupyterhub_python_base_dir }}/bin/jupyterhub --generate-config"
+    ansible.builtin.shell: "{{ jupyterhub_python_base_dir }}/bin/jupyterhub --generate-config"
     args:
        chdir: /etc/jupyterlab/
        creates: /etc/jupyterlab/jupyterhub_config.py
@@ -115,7 +134,7 @@
       - skip_ansible_lint
 
   - name: JupyterLab | Patch basic settings /etc/jupyterlab/jupyterhub_config.py
-    lineinfile:
+    ansible.builtin.lineinfile:
       dest: /etc/jupyterlab/jupyterhub_config.py
       regexp: "{{ item.regexp }}"
       line: "{{ item.line }}"
@@ -127,7 +146,7 @@
       - jupyterlab
 
   - name: JupyterLab | Template startup (systemd)
-    template:
+    ansible.builtin.template:
        src: "{{ role_path }}/templates/jupyterlab.systemd.j2"
        dest: "/etc/systemd/system/jupyterlab.service"
        owner: root
@@ -139,7 +158,7 @@
       - jupyterlab
 
   - name: JupyterLab | reload systemd
-    command: systemctl daemon-reload
+    ansible.builtin.command: systemctl daemon-reload
     when: ansible_service_mgr == "systemd"
     become: yes
     tags:
@@ -147,7 +166,7 @@
       - skip_ansible_lint
 
   - name: JupyterLab | Start and Enable Service
-    service: name="jupyterlab" enabled="yes" state="started"
+    ansible.builtin.service: name="jupyterlab" enabled="yes" state="started"
     when: ansible_service_mgr == "systemd"
     become: yes
     tags:
