@@ -11,6 +11,9 @@ option_upgrade_pip_in_jupyter_venv: False
 
 jupyterhub_python: "virtualenv"  # python3 / anaconda / default / virtualenv
 
+jupyterhub_users:
+  - ubuntu
+
 option_install_nodejs: True
 nodejs_version: "20.x" # 0.10 0.12 4.x 5.x 6.x 7.x
 
@@ -18,15 +21,16 @@ jupyterhub_properties:
   - {regexp: "^c.Authenticator.admin_users*", line: "c.Authenticator.admin_users = {'jupyter'}"}
   - {regexp: "^c.LocalAuthenticator.create_system_users*", line: "c.LocalAuthenticator.create_system_users = True"}
   - {regexp: "^c.JupyterHub.confirm_no_ssl*", line: "c.JupyterHub.confirm_no_ssl = True"}
-  - {regexp: "^c.JupyterHub.spawner_class*", line: "c.JupyterHub.spawner_class = 'systemdspawner.SystemdSpawner'"}
+  - {regexp: "^c.JupyterHub.spawner_class*", line: "c.JupyterHub.spawner_class = 'sudospawner.SudoSpawner'"}
   - {regexp: "^c.JupyterHub.cookie_secret*", line: "c.JupyterHub.cookie_secret = bytes.fromhex('{{jupyterhub_cookie_secret}}')"}
   - {regexp: "^c.JupyterHub.db_url*", line: "c.JupyterHub.db_url = '/etc/jupyterlab/db/jupyterhub.sqlite'"}
-  #- {regexp: "^c.SudoSpawner.sudospawner_path*", line: "c.SudoSpawner.sudospawner_path=\"{{jupyterhub_python_base_dir}}/bin/sudospawner\""}
-  #- {regexp: "^c.Spawner.default_url*", line: "c.Spawner.default_url = '/lab'"}
+  - {regexp: "^c.SudoSpawner.sudospawner_path*", line: "c.SudoSpawner.sudospawner_path=\"{{jupyterhub_python_base_dir}}/bin/sudospawner\""}
+  - {regexp: "^c.Spawner.default_url*", line: "c.Spawner.default_url = '/lab'"}
+  - {regexp: "^c.Authenticator.allow_all*", line: "c.Authenticator.allow_all = True"}
 
-  # - {regexp: "^c.JupyterHub.hub_ip*", line: "c.JupyterHub.hub_ip = '{{ jupyterhub_ip }}'"}
-  # - {regexp: "^c.JupyterHub.ip*", line: "c.JupyterHub.ip = '{{ jupyterhub_ip }}'"}
-  # - {regexp: "^c.JupyterHub.proxy_api_ip*", line: "c.JupyterHub.proxy_api_ip = '{{ jupyterhub_ip }}'"}
+#  - {regexp: "^c.JupyterHub.hub_ip*", line: "c.JupyterHub.hub_ip = '{{ jupyterhub_ip }}'"}
+#  - {regexp: "^c.JupyterHub.ip*", line: "c.JupyterHub.ip = '{{ jupyterhub_ip }}'"}
+#  - {regexp: "^c.JupyterHub.proxy_api_ip*", line: "c.JupyterHub.proxy_api_ip = '{{ jupyterhub_ip }}'"}
 
 
 jupyterhub_python_base_dir: /opt/jupyterhub

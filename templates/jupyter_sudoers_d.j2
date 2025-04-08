@@ -1,4 +1,6 @@
 # Add users working with jupyterhub to jupyter group
 # sudo usermod -a -G jupyter userName
 
-jupyter ALL=(%jupyter) NOPASSWD: {{jupyterhub_python_base_dir}}/bin/sudospawner
+Cmnd_Alias JUPYTER_CMD = {{jupyterhub_python_base_dir}}/bin/sudospawner
+
+jupyter ALL=(%jupyter) NOPASSWD:JUPYTER_CMD

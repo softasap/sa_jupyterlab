@@ -26,6 +26,15 @@
     tags:
       - jupyterlab
 
+  # do not forget to set a password for such user in order to impersonate on spawner
+  - name: JupyterLab | Add users to jupyter group
+    ansible.builtin.user:
+      name: "{{ item }}"
+      groups: jupyter
+      append: yes
+    become: yes
+    loop: "{{ jupyterhub_users }}"
+
   - name: JupyterLab | create jupyter config folder
     ansible.builtin.file:
       path: /etc/jupyterlab
@@ -79,6 +88,15 @@
     tags:
       - jupyterlab
 
+  - name: JupyterLab | Set capabilities for Node.js binary (port 80)
+    community.general.capabilities:
+      path: /usr/bin/node
+      capability: cap_net_bind_service=+ep
+      state: present
+    become: yes
+    ignore_errors: yes
+    tags:
+      - jupyterlab
 
   - name: JupyterLab | install components
     ansible.builtin.pip:
@@ -88,7 +106,7 @@
         - wheel
         - jupyterhub
         - jupyterlab
-        #- sudospawner obsolete in 2025-04-05
+        - sudospawner
         - jupyterhub-systemdspawner
     become: yes
     tags:
