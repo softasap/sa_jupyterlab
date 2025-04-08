@@ -1,0 +1,60 @@
+---
+# https://github.com/ansible-community/molecule-vagrant docs
+dependency:
+  name: galaxy
+#  requirements_file: tests/requirements.yml
+
+scenario:
+  name: default
+
+lint: |
+       set -e
+       yamllint .
+       ansible-lint
+       flake8
+
+molecule:
+  raw_ssh_args:
+    - -o StrictHostKeyChecking=false
+    - -o UserKnownHostsFile=/dev/null
+
+driver:
+  name: vagrant
+  provider:
+    name: virtualbox
+
+ansible:
+  lint:
+    name: ansible-lint
+
+platforms:
+  - name: bionic
+    instance_raw_config_args:
+      - "vbguest.auto_update = false"   # yamllint disable-line
+      - "disksize.size = '50GB'"
+    provider_raw_config_args:
+      - "customize [ 'modifyvm', :id, '--uartmode1', 'disconnected' ]"
+    box: ubuntu/jammy64
+    memory: 4096
+    cpus: 2
+    interfaces:
+     - network_name: private_network
+       type: dhcp
+       auto_config: true
+
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      callback_whitelist: profile_roles,profile_tasks,timer
+  # playbooks:
+  #   create: ../../../../../resources/playbooks/vagrant/create.yml
+  #   destroy: ../../../../../resources/playbooks/vagrant/destroy.yml
+  # env:
+  #   ANSIBLE_ROLES_PATH: ../../../../../resources/roles/
+  lint:
+    name: ansible-lint
+verifier:
+  name: testinfra
+  env:
+    PYTHONWARNINGS: "ignore:.*U.*mode is deprecated:DeprecationWarning"
